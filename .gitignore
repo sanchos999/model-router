@@ -1,0 +1,18 @@
+# runtime / mutable state — lives in MODEL_ROUTER_STATE_DIR, never here
+state/
+*.db
+*.db-wal
+*.db-shm
+*.jsonl
+*.log
+backups/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# secrets — private config lives outside the repo
+.env
+.env.*
+!.env.example
+*.local.yaml

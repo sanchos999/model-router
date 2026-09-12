@@ -1,0 +1,25 @@
+# Model Router control plane (127.0.0.1:4111)
+# Install to ~/.config/systemd/user/ after editing paths for your host.
+[Unit]
+Description=Model Router Control Plane (admin API + admin UI, 127.0.0.1:4111)
+After=network.target
+
+[Service]
+Type=exec
+WorkingDirectory=/home/YOURUSER/model-router
+EnvironmentFile=-/home/YOURUSER/.config/model-router/router.env
+Environment=PYTHONPATH=/home/YOURUSER/model-router
+Environment=GW_CONTROL_HOST=127.0.0.1
+Environment=GW_CONTROL_PORT=4111
+Environment=MODEL_ROUTER_INSTANCE_ID=control
+Environment=GATEWAY_STATE_DIR=/home/YOURUSER/model-router-data/control
+Environment=GW_CONTROL_DB=/home/YOURUSER/model-router-data/control/control.db
+Environment=GW_CONFIG=/home/YOURUSER/model-router-data/control/gateway-v2.json
+ExecStart=/home/YOURUSER/model-router/.venv/bin/python -m uvicorn gateway.control.serve_control:app --host 127.0.0.1 --port 4111 --no-access-log
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=10
+KillMode=mixed
+
+[Install]
+WantedBy=default.target

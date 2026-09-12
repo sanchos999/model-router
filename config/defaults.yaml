@@ -1,0 +1,39 @@
+# Immutable defaults — Gateway V2 / Model Router (spec R6 §C).
+#
+# Layer model:
+#   1. THIS FILE          — immutable defaults + the policy key contract.
+#                           Read-only; changes require a code change.
+#   2. state/control.db   — persistent mutable policy (config_active),
+#                           revisioned (R6 §D), applied to the runtime
+#                           atomically; writes state/gateway-v2.json.
+#   3. EnvironmentFile    — secrets ONLY (.env.gateway, 0600). Secrets are
+#                           never stored in control.db, logs, UI or Git.
+#   4. state/gateway-v2.json — generated runtime snapshot (never hand-edit).
+#
+# Default mode: AUTO ECONOMICS — ranking by health -> reliability ->
+# cost_per_success. There is NO provider priority; PREFER_PROVIDER exists
+# only as an explicit override (R6 §H/§I).
+
+policy:
+  min_discount: 0.80                 # certified discount floor
+  quality_first: true
+  # health/circuit TTLs
+  health_ttl_success_s: 300.0
+  health_ttl_failure_s: 45.0
+  # R5 cache-aware economics
+  cache_switch_horizon: 3.0          # projected-saving horizon (requests)
+  cache_switch_margin: 1.25          # safety margin over rebuild penalty
+  reliability_min_samples: 10        # samples before cost_per_success is EXACT
+  price_evidence_ttl_s: 86400.0      # price evidence TTL
+  cache_affinity_ttl_s: 900.0        # warm-cache affinity window
+  canonical_switch_margin_factor: 2.0
+  free_route_min_success_rate: 0.90
+  # tier quality floors (T0/T1..T4; T0 deterministic is not floored)
+  quality_floors:
+    T1: 0.0
+    T2: 0.40
+    T3: 0.55
+    T4: 0.75
+  providers:
+    provider_a: { enabled: true, min_discount: 0.80 }
+    provider_b:  { enabled: true, min_discount: 0.80 }

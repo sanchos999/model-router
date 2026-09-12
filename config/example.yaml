@@ -1,0 +1,63 @@
+# Model Router — example configuration (anonymized).
+# Real deployment config lives OUTSIDE the repo (control DB / private dir).
+# Values here are illustrative provider-a/provider-b examples.
+
+# ── providers ──────────────────────────────────────────────────────────────
+# Provider definitions reference secrets by NAME only; actual keys are read
+# from the private EnvironmentFile (see .env.example).
+providers:
+  provider-a:
+    adapter_type: provider_a           # or: provider_b | openai_compat
+    base_url: https://provider-a.example/v1
+    secret_ref: PROVIDER_A_API_KEY
+    enabled: true
+    min_discount: 0.80               # optional per-provider floor override
+  provider-b:
+    adapter_type: provider_b
+    base_url: https://provider-b.example/min80/v1
+    secret_ref: PROVIDER_B_API_KEY
+    enabled: true
+
+# ── routing policy ─────────────────────────────────────────────────────────
+policy:
+  min_discount: 0.80                 # certified discount floor
+  quality_first: true
+  health_ttl_success_s: 300.0
+  health_ttl_failure_s: 45.0
+  cache_switch_horizon: 3.0
+  cache_switch_margin: 1.25
+  reliability_min_samples: 10
+  price_evidence_ttl_s: 86400.0
+  cache_affinity_ttl_s: 900.0
+  canonical_switch_margin_factor: 2.0
+  free_route_min_success_rate: 0.90
+  quality_floors:
+    T1: 0.0
+    T2: 0.40
+    T3: 0.55
+    T4: 0.75
+
+# ── context / compression ──────────────────────────────────────────────────
+context:
+  soft_threshold: 0.65               # fraction of safe_context
+  hard_threshold: 0.78
+  target_ratio: 0.25                 # post-compression utilization target
+  anti_thrash_tokens: 100000         # min new tokens between compressions
+
+# ── control plane ──────────────────────────────────────────────────────────
+control:
+  bind: 127.0.0.1:4111
+  admin_token_secret_ref: MODEL_ROUTER_ADMIN_TOKEN
+
+# ── inference auth ─────────────────────────────────────────────────────────
+auth:
+  mode: bearer                       # disabled | bearer
+  token_secret_ref: MODEL_ROUTER_PROVIDER_A_TOKEN
+
+# ── aliases (manual overrides) ─────────────────────────────────────────────
+aliases:
+  main-auto:
+    strategy: selector               # classifier picks the tier
+  compression-auto:
+    strategy: fixed
+    model: provider-a/model-compressor
