@@ -202,7 +202,7 @@ class RouteRegistry:
                     cm: CanonicalModel | None = get_canonical(canonical)
                     cprof = self._canon.get(canonical)
                     q_score = cprof.quality_score if cprof is not None else cm.quality
-                    tier = cprof.tier_eligibility or (cm.tier if cm else None)
+                    tier = (cprof.tier_eligibility if cprof is not None else None) or (cm.tier if cm else None)
                     key = f"{pm.provider}:{pm.provider_model_id}"
                     rec = new_routes.get(key)
                     if rec is None:
