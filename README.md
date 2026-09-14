@@ -62,3 +62,5 @@ docs/rollback.md, docs/troubleshooting.md
     RUN_LIVE_TESTS=1 ... # opt-in live provider probes
 
 Version: 1.0.0 (see GET /version).
+
+*(Russian: см. [README.ru.md](README.ru.md))*
